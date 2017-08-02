@@ -1,0 +1,19 @@
+{
+  "name": "comfyarchive-server",
+  "version": "1.0.0",
+  "description": "server backend for comfyarchive",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wg4568/ComfyArchive-Server.git"
+  },
+  "author": "Leap",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wg4568/ComfyArchive-Server/issues"
+  },
+  "homepage": "https://github.com/wg4568/ComfyArchive-Server#readme"
+}
