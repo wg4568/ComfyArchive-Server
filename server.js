@@ -23,20 +23,6 @@ connection.connect(function(error) {
     else console.log("Could not connect to MySQL database");
 });
 
-function createId(callback) {
-	var text = "";
-	var good = false;
-	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-	function remake() {
-		text = "";
-
-		for (var i = 0; i < 32; i++) {
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-	}
-}
-
 app.post("/images", upload.single("image"), function(req, ret) {
 	if (req.file) {
 		var string = fs.readFileSync(req.file.path).toString("hex").toUpperCase();
@@ -70,6 +56,37 @@ app.get("/images", function(req, ret) {
 	});
 });
 
+app.get("/images/recent", function(req, ret) {
+	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE 1",
+	function(error, result) {
+		if (error) ret.status(500).json(error);
+		sorted = result.sort(function(a, b) {
+			atime = new Date(a.posted);
+			btime = new Date(b.posted);
+			if (atime > btime) return -1;
+			if (atime < btime) return 1;
+			return 0;
+		});
+		ret.json(sorted);
+	});
+});
+
+app.get("/images/recent/:amt", function(req, ret) {
+	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE 1",
+	function(error, result) {
+		if (error) ret.status(500).json(error);
+		sorted = result.sort(function(a, b) {
+			atime = new Date(a.posted);
+			btime = new Date(b.posted);
+			if (atime > btime) return -1;
+			if (atime < btime) return 1;
+			return 0;
+		});
+		sorted = sorted.slice(0, req.params.amt);
+		ret.json(sorted);
+	});
+});
+
 app.get("/images/search/:query", function(req, ret) {
 	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE 1",
 	function(error, result) {
@@ -95,7 +112,8 @@ app.get("/images/search/:query", function(req, ret) {
 				if (words.indexOf(kw.toLowerCase()) != -1) match++;
 			});
 
-			found.push({match: match, id: img.id});
+			img.match = match;
+			found.push(img);
 		});
 		found = found.filter(function(thing) {
 			return thing.match != 0;
@@ -103,7 +121,7 @@ app.get("/images/search/:query", function(req, ret) {
 		found = found.sort(function(a, b) {
 			if (a.match > b.match) return -1;
 			if (a.match < b.match) return 1;
-			else return 0;
+			return 0;
 		})
 		ret.json(found);
 	});
