@@ -40,13 +40,18 @@ app.post("/images", upload.single("image"), function(req, ret) {
 		if (!uploader) uploader = "Anon";
 		if (!tags) tags = "";
 
-		connection.query(
-			"INSERT INTO `images`(`title`, `uploader`, `tags`, `id`, `type`, `image`) VALUES ('" + title + "', '" + uploader + "', '" + tags + "', UUID(), '" + type + "', x'" + string + "')",
-			function(error, result) {
-				if (error) ret.status(500).json(error);
-				ret.json(result);
-			}
-		);
+		connection.query("SELECT UUID()", function(error, result) {
+			var uuid = result[0]["UUID()"];
+			connection.query(
+				"INSERT INTO `images`(`title`, `uploader`, `tags`, `id`, `type`, `image`) VALUES ('" + title + "', '" + uploader + "', '" + tags + "', '" + uuid + "', '" + type + "', x'" + string + "')",
+				function(error, result) {
+					if (error) ret.status(500).json(error);
+					result.id = uuid;
+					ret.json(result);
+				}
+			);
+		})
+
 		fs.unlinkSync(req.file.path);
 	} else {
 		ret.status(400).send("No image file");
