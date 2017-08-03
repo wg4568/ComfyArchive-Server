@@ -62,6 +62,53 @@ app.post("/images", upload.single("image"), function(req, ret) {
 	}
 });
 
+app.get("/images", function(req, ret) {
+	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE 1",
+	function(error, result) {
+		if (error) ret.status(500).json(error);
+		ret.json(result);
+	});
+});
+
+app.get("/images/search/:query", function(req, ret) {
+	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE 1",
+	function(error, result) {
+		if (error) ret.status(500).json(error);
+		var found = [];
+		var query = req.params.query.split(" ");
+		result.forEach(function(img) {
+			var match = 0;
+			var words = img.tags.split(",")
+							.concat(img.title.split(" "))
+							.concat(img.uploader.split(" "));
+			words.push(img.id);
+			words = words.filter(function(word) {
+				return word != "";
+			});
+			words = words.map(function(word) {
+				return word.toLowerCase();
+			});
+
+			console.log(words);
+
+			query.forEach(function(kw) {
+				if (words.indexOf(kw.toLowerCase()) != -1) match++;
+			});
+
+			found.push({match: match, id: img.id});
+		});
+		found = found.filter(function(thing) {
+			return thing.match != 0;
+		});
+		found = found.sort(function(a, b) {
+			if (a.match > b.match) return -1;
+			if (a.match < b.match) return 1;
+			else return 0;
+		})
+		ret.json(found);
+	});
+});
+
 app.get("/images/:id", function(req, ret) {
 	connection.query("SELECT `title`, `uploader`, `tags`, `type`, `id`, `upvotes`, `posted` FROM `images` WHERE ?", {id: req.params.id},
 	function(error, result) {
