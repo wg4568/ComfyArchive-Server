@@ -23,6 +23,11 @@ connection.connect(function(error) {
     else console.log("Could not connect to MySQL database");
 });
 
+app.use(function(req, ret, next) {
+	ret.set("Access-Control-Allow-Origin", "*");
+	next();
+});
+
 app.post("/images", upload.single("image"), function(req, ret) {
 	if (req.file) {
 		var string = fs.readFileSync(req.file.path).toString("hex").toUpperCase();
