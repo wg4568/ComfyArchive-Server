@@ -56,6 +56,7 @@ app.post("/images", upload.single("image"), function(req, ret) {
 				ret.json(result);
 			}
 		);
+		fs.unlinkSync(req.file.path);
 	} else {
 		ret.status(400).send("No image file");
 	}
