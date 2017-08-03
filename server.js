@@ -116,8 +116,6 @@ app.get("/images/search/:query", function(req, ret) {
 				return word.toLowerCase();
 			});
 
-			console.log(words);
-
 			query.forEach(function(kw) {
 				if (words.indexOf(kw.toLowerCase()) != -1) match++;
 			});
@@ -165,6 +163,6 @@ app.get("/images/:id/src", function(req, ret) {
 	});
 });
 
-app.listen(8080, function() {
-    console.log("REST API listening on port 8080");
+app.listen(secret.port, function() {
+    console.log("REST API listening on port " + secret.port);
 });
