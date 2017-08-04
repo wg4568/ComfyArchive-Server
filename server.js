@@ -102,7 +102,7 @@ app.get("/images/search/:query", function(req, ret) {
 	function(error, result) {
 		if (error) ret.status(500).json(error);
 		var found = [];
-		var query = req.params.query.split(" ");
+		var query = req.params.query.split("+");
 		result.forEach(function(img) {
 			var match = 0;
 			var words = img.tags.split(",")
